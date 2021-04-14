@@ -15,7 +15,8 @@
     <string name="przelicznik_walut">Przelicznik walut</string>
     <string name="message">Brak połączenia z Internetem!</string>
     <string name="z_oto">Złoto</string>
-    <string name="todayGoldRateText">Dzisiejszy kurs (cena za 1 gram): %1$f</string>
+    <string name="todayGoldRateText">Dzisiejszy kurs (cena za 1 gram): %1$.2f</string>
+    <string name="_0">%1$.2f</string>
 
 
 </resources>

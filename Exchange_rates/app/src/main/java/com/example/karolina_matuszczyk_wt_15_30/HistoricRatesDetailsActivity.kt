@@ -49,10 +49,22 @@ class HistoricRatesDetailsActivity : AppCompatActivity() {
         for((index, element) in historicRates.withIndex()){
             entries.add(Entry(index.toFloat(), element.second.toFloat()))
         }
-        val lineData =LineData(LineDataSet(entries, "Kurs"))
+        val entriesDataSet = LineDataSet(entries, "Kurs")
+        entriesDataSet.lineWidth = 3f
+        entriesDataSet.color = R.color.black
+        entriesDataSet.setCircleColor(R.color.purple_500)
+        entriesDataSet.circleRadius = 6f
+        entriesDataSet.setDrawValues(false)
+        val lineData =LineData(entriesDataSet)
         lineChart.data = lineData
+        lineChart.xAxis.setDrawGridLines(false)
+        lineChart.xAxis.granularity = 4f
+        lineChart.axisRight.setDrawGridLines(false)
+        lineChart.axisLeft.setDrawGridLines(false)
+
         lineChart.xAxis.valueFormatter = IndexAxisValueFormatter(historicRates.map { it.first }.toTypedArray())
         lineChart.invalidate()
+        lineChart.animateX(2000)
         val desctiption = Description()
         desctiption.text = "Kurs %s z ostatnich 30 dni".format(currency.currencyCode)
         lineChart.description = desctiption
@@ -72,10 +84,24 @@ class HistoricRatesDetailsActivity : AppCompatActivity() {
         for((index, element) in historicRates.withIndex()){
             entries.add(Entry(index.toFloat(), element.second.toFloat()))
         }
-        val lineData =LineData(LineDataSet(entries, "Kurs"))
+
+        val entriesDataSet = LineDataSet(entries, "Kurs")
+        entriesDataSet.lineWidth = 3f
+        entriesDataSet.color = R.color.black
+        entriesDataSet.setCircleColor(R.color.purple_500)
+        entriesDataSet.circleRadius = 6f
+        entriesDataSet.setDrawValues(false)
+        val lineData =LineData(entriesDataSet)
         lineChart2.data = lineData
+        lineChart2.xAxis.setDrawGridLines(false)
+        lineChart2.xAxis.granularity = 1f
+        lineChart2.axisRight.setDrawGridLines(false)
+        lineChart2.axisLeft.setDrawGridLines(false)
+
         lineChart2.xAxis.valueFormatter = IndexAxisValueFormatter(historicRates.map { it.first }.toTypedArray())
         lineChart2.invalidate()
+        lineChart2.animateX(2000)
+
         val desctiption = Description()
         desctiption.text = "Kurs %s z ostatnich 7 dni".format(currency.currencyCode)
         lineChart2.description = desctiption

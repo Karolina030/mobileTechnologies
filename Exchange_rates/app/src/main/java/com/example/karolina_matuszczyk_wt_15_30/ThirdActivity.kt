@@ -26,9 +26,11 @@ class ThirdActivity : AppCompatActivity() {
     internal lateinit var adapter: CurrenciesAdapter
     internal lateinit var wynik: EditText
     internal lateinit var money: EditText
-    internal lateinit var fromPLN: Button
-    internal lateinit var toPLN: Button
-    internal var rates by Delegates.notNull<Double>()
+    internal lateinit var directionButton: ToggleButton
+    internal lateinit var convertButton: Button
+
+    internal lateinit var currencies: Array<CurrencyDetails>
+    internal lateinit var currentCurrency: CurrencyDetails
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,176 +38,85 @@ class ThirdActivity : AppCompatActivity() {
         setContentView(R.layout.activity_third)
         wynik = findViewById(R.id.wynikPrzeliczenia)
         money = findViewById(R.id.moneyToCovert)
-        fromPLN = findViewById(R.id.fromPLN)
-        toPLN = findViewById(R.id.toPLN)
-
-        World.init(applicationContext)
-        adapter = CurrenciesAdapter(CurrenciesSingleton.getData(), this)
-        CurrenciesSingleton.prepereSingleton(applicationContext)
-        val pos = intent.getIntExtra("positionInArray", 0)
-
+        directionButton = findViewById(R.id.toggleButton)
+        convertButton = findViewById(R.id.convert)
+        convertButton.isActivated = false
         picker = findViewById(R.id.numberPicker)
-        countries = World.getAllCountries().distinctBy { it.currency.code }
-        var countryCodes = arrayOfNulls<String>(countries.size)
-
-        for(i in 0 until countries.size){
-
-            countryCodes[i] = countries.get(i).currency.code
-        }
-        picker.minValue =0
-        picker.maxValue = countries.size-1
-        picker.displayedValues = countryCodes
 
 
+        makeRequest()
 
-        fromPLN.setOnClickListener {
-            if(countryCodes[picker.value] != "BMD" && countryCodes[picker.value] != "SSD" && countryCodes[picker.value] != "XBT" &&
-                    countryCodes[picker.value] != "KYD" && countryCodes[picker.value] != "PLN" && countryCodes[picker.value] != "FKP"){
-                if(countryCodes[picker.value] == "NOK" || countryCodes[picker.value] == "CAD" || countryCodes[picker.value] == "CZK" ||
-                        countryCodes[picker.value] == "HUF" || countryCodes[picker.value] == "CHF" || countryCodes[picker.value] == "EEK" ||
-                        countryCodes[picker.value] == "SEK" || countryCodes[picker.value] == "DKK" || countryCodes[picker.value] == "JPY" ||
-                        countryCodes[picker.value] == "USD" || countryCodes[picker.value] == "GBP" || countryCodes[picker.value] == "EUR"){
-
-                    makeRequestA(countryCodes[picker.value])
-
-                }
-                else{
-                    makeRequest(countryCodes[picker.value])
-                }
-            }
+        convertButton.setOnClickListener {
+            convert()
         }
 
-        toPLN.setOnClickListener {
-            if(countryCodes[picker.value] != "BMD" && countryCodes[picker.value] != "SSD" && countryCodes[picker.value] != "XBT" &&
-                    countryCodes[picker.value] != "KYD" && countryCodes[picker.value] != "PLN" && countryCodes[picker.value] != "FKP"){
-                if(countryCodes[picker.value] == "NOK" || countryCodes[picker.value] == "CAD" || countryCodes[picker.value] == "CZK" ||
-                        countryCodes[picker.value] == "HUF" || countryCodes[picker.value] == "CHF" || countryCodes[picker.value] == "EEK" ||
-                        countryCodes[picker.value] == "SEK" || countryCodes[picker.value] == "DKK" || countryCodes[picker.value] == "JPY"
-                        || countryCodes[picker.value] == "USD" || countryCodes[picker.value] == "GBP" || countryCodes[picker.value] == "EUR"){
-                    makeRequestA2(countryCodes[picker.value])
-
-                }
-                else{
-                    makeRequest2(countryCodes[picker.value])
-                }
-            }
-        }
-
-
-
     }
 
-    private fun makeRequest(s: String?){
-        val queue = CurrenciesSingleton.getQueue()
-        val url = "http://api.nbp.pl/api/exchangerates/rates/B/%s/".format(s)
-        val currenciesRatesRequest = JsonObjectRequest(
-                Request.Method.GET, url, null,
-                Response.Listener { response ->
-                    println("Sukces!")
-                    rates = response.getJSONArray("rates").getJSONObject(0).getDouble("mid")
-                    //loadDetails(response)
-                    setData(rates)
-                },
-                Response.ErrorListener { error ->
-                    val message =getString(R.string.message)
-                    Toast.makeText(this@ThirdActivity, message, Toast.LENGTH_LONG).show()
-                    val intent = Intent(this@ThirdActivity, MainActivity::class.java).apply {
-                    }
-                    startActivity(intent)
-                })
-        queue.add(currenciesRatesRequest)
-    }
-    private fun makeRequestA(s: String?){
-        val queue = CurrenciesSingleton.getQueue()
-        val url = "http://api.nbp.pl/api/exchangerates/rates/A/%s/".format(s)
-        val currenciesRatesRequest = JsonObjectRequest(
-                Request.Method.GET, url, null,
-                Response.Listener { response ->
-                    println("Sukces!")
-                    rates = response.getJSONArray("rates").getJSONObject(0).getDouble("mid")
-                    //loadDetails(response)
-                    setData(rates)
-                },
-                Response.ErrorListener { error ->
-                    val message =getString(R.string.message)
-                    Toast.makeText(this@ThirdActivity, message, Toast.LENGTH_LONG).show()
-                    val intent = Intent(this@ThirdActivity, MainActivity::class.java).apply {
-                    }
-                    startActivity(intent)
-                })
-        queue.add(currenciesRatesRequest)
-    }
-
-    private fun makeRequest2(s: String?){
-        val queue = CurrenciesSingleton.getQueue()
-        val url = "http://api.nbp.pl/api/exchangerates/rates/B/%s/".format(s)
-        val currenciesRatesRequest = JsonObjectRequest(
-                Request.Method.GET, url, null,
-                Response.Listener { response ->
-                    println("Sukces!")
-                    rates = response.getJSONArray("rates").getJSONObject(0).getDouble("mid")
-                    //loadDetails(response)
-                    setData2(rates)
-                },
-                Response.ErrorListener { error ->
-                    val message =getString(R.string.message)
-                    Toast.makeText(this@ThirdActivity, message, Toast.LENGTH_LONG).show()
-                    val intent = Intent(this@ThirdActivity, MainActivity::class.java).apply {
-                    }
-                    startActivity(intent)
-                })
-        queue.add(currenciesRatesRequest)
-    }
-
-    private fun makeRequestA2(s: String?){
-        val queue = CurrenciesSingleton.getQueue()
-        val url = "http://api.nbp.pl/api/exchangerates/rates/A/%s/".format(s)
-        val currenciesRatesRequest = JsonObjectRequest(
-                Request.Method.GET, url, null,
-                Response.Listener { response ->
-                    println("Sukces!")
-                    rates = response.getJSONArray("rates").getJSONObject(0).getDouble("mid")
-                    //loadDetails(response)
-                    setData2(rates)
-                },
-                Response.ErrorListener { error ->
-                    val message =getString(R.string.message)
-                    Toast.makeText(this@ThirdActivity, message, Toast.LENGTH_LONG).show()
-                    val intent = Intent(this@ThirdActivity, MainActivity::class.java).apply {
-                    }
-                    startActivity(intent)
-                })
-        queue.add(currenciesRatesRequest)
-    }
-
-    private fun setData2(rates: Double) {
-        if (!wynik.text.isEmpty()) {
-            var ile = wynik.getText().toString().toDouble()
-            var result = ile.times(rates)
+    private fun convert() {
+        if (directionButton.isChecked == true && !money.text.isEmpty()){
+            val rate = 1/currentCurrency.currentRate
+            val result = rate*money.text.toString().toDouble()
+            wynik.setText(result.toString())
+        }  else if(directionButton.isChecked == false && !wynik.text.isEmpty()){
+            val result = currentCurrency.currentRate*wynik.text.toString().toDouble()
             money.setText(result.toString())
         }
 
-
     }
 
 
-    private fun setData(rates: Double) {
-        if (!money.text.isEmpty()){
-            var ile = money.getText().toString().toDouble()
-            var result = ile.div(rates)
-            wynik.setText(result.toString())
+    fun makeRequest() {
+
+        val queue = CurrenciesSingleton.getQueue()
+        val url = "http://api.nbp.pl/api/exchangerates/tables/A?format=json"
+        val currenciesRatesRequest = JsonArrayRequest(
+                Request.Method.GET, url, null,
+                Response.Listener { response ->
+                    loadData(response, "A")
+                    setPicker()
+                },
+                Response.ErrorListener { error ->
+                    val message =getString(R.string.message)
+                    Toast.makeText(this@ThirdActivity, message, Toast.LENGTH_LONG).show()
+                    val intent = Intent(this@ThirdActivity, MainActivity::class.java).apply {
+                    }
+                    intent.putExtra("error",true)
+                    startActivity(intent)
+                })
+        queue.add(currenciesRatesRequest)
+    }
+
+
+    fun loadData(response: JSONArray?, table:String) {
+
+        response?.let {
+            val rates = response.getJSONObject(0).getJSONArray("rates")
+            val ratesCount = rates.length()
+            val tmpData = arrayOfNulls<CurrencyDetails>(ratesCount)
+            for(i in 0 until ratesCount){
+                val currencyCode = rates.getJSONObject(i).getString("code")
+                val currencyRate = rates.getJSONObject(i).getDouble("mid")
+                val flag = CurrenciesSingleton.getFlagForCountries(currencyCode)
+                val currencyObject = CurrencyDetails(currencyCode, currencyRate, flag, table, "up")
+                tmpData[i] = currencyObject
+            }
+            currencies = tmpData as Array<CurrencyDetails>
         }
+        convertButton.isActivated = true
 
-        //wynik.text = result.toString()
+    }
+    private fun setPicker() {
+        picker.minValue =0
+        currentCurrency = currencies.first()
+        picker.maxValue =currencies.size-1
+        picker.displayedValues = currencies.map { it.currencyCode}.toTypedArray()
+        val valueListener = NumberPicker.OnValueChangeListener{_,_,newVal->
+            currentCurrency = currencies[newVal]
+
+        }
+        picker.setOnValueChangedListener(valueListener)
 
     }
 
-
-//    private fun loadDetails(response: JSONObject?) {
-//        response?.let {
-//            val rates = response.getJSONArray("rates").getJSONObject(0).getDouble("mid")
-//        }
-//
-//    }
 
 }

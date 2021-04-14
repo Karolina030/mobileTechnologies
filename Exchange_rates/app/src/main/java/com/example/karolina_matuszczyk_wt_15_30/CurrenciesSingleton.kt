@@ -46,15 +46,11 @@ object CurrenciesSingleton {
                     arrow = "up"
 
                 }
-                ///val table = table
 
-                //val flag = countries.find { it.currency.code ==currencyCode }?.flagResource ?:World.getWorldFlag()
                 val currencyObject = CurrencyDetails(currencyCode, currencyRate, flag, table, arrow)
                 tmpData[i] = currencyObject
             }
             var tmp = tmpData as Array<CurrencyDetails>
-       //     data = tmp
-         //   data = emptyArray()
             data = data?.plus(tmp)
         }
     }

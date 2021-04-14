@@ -36,36 +36,9 @@ class FourthActivity : AppCompatActivity() {
 
         todayGoldRate =findViewById(R.id.todayGoldRate)
         lineChart=findViewById(R.id.chartGold)
-        //makeRequest()
         getData()
     }
 
-    fun makeRequest(){
-        val queue = CurrenciesSingleton.getQueue()
-        val url = "http://api.nbp.pl/api/cenyzlota?format=json"
-        val currenciesRatesRequest = JsonArrayRequest(
-            Request.Method.GET, url, null,
-            Response.Listener { response ->
-                println("Sukces!")
-                rates = response.getJSONObject(0).getDouble("cena")
-                println(rates)
-                setData(rates)
-
-            },
-            Response.ErrorListener { error ->
-                val message =getString(R.string.message)
-                Toast.makeText(this@FourthActivity, message, Toast.LENGTH_LONG).show()
-                val intent = Intent(this@FourthActivity, MainActivity::class.java).apply {
-                }
-                startActivity(intent)
-            })
-        queue.add(currenciesRatesRequest)
-    }
-
-    private fun setData(rates: Double) {
-        todayGoldRate.text =getString(R.string.todayGoldRateText, rates.toFloat())
-
-    }
 
     private fun getData(){
         println("getData!")
@@ -80,14 +53,14 @@ class FourthActivity : AppCompatActivity() {
                 setData2()
             },
             Response.ErrorListener { error ->
-                println("error")
-                println(error.message)
-
                 val message =getString(R.string.message)
-                Toast.makeText(this@FourthActivity, message, Toast.LENGTH_LONG).show()
-                val intent = Intent(this@FourthActivity, SecondActivity::class.java).apply {
+                val intent = Intent(this@FourthActivity, MainActivity::class.java).apply {
+                    Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+
                 }
+                intent.putExtra("error",true);
                 startActivity(intent)
+
             })
         queue.add(historicalRatesRequest)
     }
@@ -114,7 +87,26 @@ class FourthActivity : AppCompatActivity() {
         for((index, element) in historicRates.withIndex()){
             entries.add(Entry(index.toFloat(), element.second.toFloat()))
         }
-        val lineData = LineData(LineDataSet(entries, "Kurs"))
+
+
+        val entriesDataSet = LineDataSet(entries, "Kurs")
+        entriesDataSet.lineWidth = 3f
+        entriesDataSet.color = R.color.black
+        entriesDataSet.setCircleColor(R.color.purple_500)
+        entriesDataSet.circleRadius = 6f
+        entriesDataSet.setDrawValues(false)
+
+        val lineData =LineData(entriesDataSet)
+        lineChart.data = lineData
+        lineChart.xAxis.setDrawGridLines(false)
+        lineChart.xAxis.granularity = 4f
+        lineChart.axisRight.setDrawGridLines(false)
+        lineChart.axisLeft.setDrawGridLines(false)
+
+        lineChart.xAxis.valueFormatter = IndexAxisValueFormatter(historicRates.map { it.first }.toTypedArray())
+        lineChart.invalidate()
+        lineChart.animateX(2000)
+
         lineChart.data = lineData
         lineChart.xAxis.valueFormatter = IndexAxisValueFormatter(historicRates.map { it.first }.toTypedArray())
         lineChart.invalidate()
