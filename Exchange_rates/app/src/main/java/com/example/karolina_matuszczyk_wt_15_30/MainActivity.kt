@@ -3,7 +3,7 @@
 // zrobione:
 // obsługa obu tabel NBP, kursy walut w recyclerView, strzałki symbolizujące wzrost lub spadek kursu
 // po wyborze waluty przejście do nowego activity z kursami: dzisiejszym i wczorajszym oraz dwoma wykresami
-// kurs złota z wykresem
+// kurs złota z wykresem z 30 dni
 // przelicznik walut: konwersja w obie strony PLN <-> inna waluta, przelicznik działa dla kursów z tabeli A
 
 
@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         CurrenciesSingleton.prepereSingleton(applicationContext)
-
 
         setContentView(R.layout.activity_main)
         button = findViewById(R.id.button)
