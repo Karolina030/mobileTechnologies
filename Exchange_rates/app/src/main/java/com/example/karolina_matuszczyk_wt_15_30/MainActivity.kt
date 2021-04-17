@@ -32,9 +32,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         CurrenciesSingleton.prepereSingleton(applicationContext)
 
-        if (intent.getBooleanExtra("error", true)) {
-            Toast.makeText(this@MainActivity, "Problem z internetem", Toast.LENGTH_LONG).show()
-        }
 
         setContentView(R.layout.activity_main)
         button = findViewById(R.id.button)
